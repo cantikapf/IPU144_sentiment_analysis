@@ -17,3 +17,16 @@ The following libraries i used:
 - [tqdm](https://tqdm.github.io/) - Python progress bar.
 - [googletrans](https://py-googletrans.readthedocs.io/en/latest/) - Google translate API.
 - [vaderSentiment](https://github.com/cjhutto/vaderSentiment) - Sentiment analysis.
+
+
+## Method:
+
+![Main flow](https://raw.githubusercontent.com/cantikapf/IPU144_sentiment_analysis/master/Flow1.png)
+
+## Twitter Scraping Flow:
+
+![Detail flow 1](https://raw.githubusercontent.com/cantikapf/IPU144_sentiment_analysis/master/Flow3.png)
+
+## Sentiment Analysis Flow
+
+![Detail flow 2](https://raw.githubusercontent.com/cantikapf/IPU144_sentiment_analysis/master/Flow2.png)
