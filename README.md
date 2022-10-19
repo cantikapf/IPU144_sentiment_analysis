@@ -30,3 +30,9 @@ The following libraries i used:
 ## Sentiment Analysis Flow
 
 ![Detail flow 2](https://raw.githubusercontent.com/cantikapf/IPU144_sentiment_analysis/master/Flow2.png)
+
+
+## 🔗 Links
+[![portfolio](https://img.shields.io/badge/my_portfolio-000?style=for-the-badge&logo=ko-fi&logoColor=white)](https://cantikapf.github.io/)
+[![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](www.linkedin.com/in/cantikaputri-febrianti)
+
