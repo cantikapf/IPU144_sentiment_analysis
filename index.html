@@ -362,6 +362,156 @@
       font-family: 'JetBrains Mono', monospace;
     }
 
+    /* ANALYSIS SECTION */
+    .analysis-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    @media (max-width: 700px) { .analysis-grid { grid-template-columns: 1fr; } }
+
+    .analysis-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: border-color 0.25s, transform 0.25s;
+    }
+    .analysis-card:hover {
+      border-color: rgba(78,205,196,0.4);
+      transform: translateY(-2px);
+    }
+    .analysis-card.full { grid-column: 1 / -1; }
+    .analysis-card-title {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--accent-teal);
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .analysis-card-title span { font-size: 1rem; }
+    .analysis-p {
+      font-size: 0.88rem;
+      line-height: 1.75;
+      color: var(--text-secondary);
+      margin-bottom: 0.75rem;
+    }
+    .analysis-p:last-child { margin-bottom: 0; }
+    .analysis-p strong { color: var(--text-primary); font-weight: 600; }
+    .analysis-p em { color: var(--accent-amber); font-style: normal; font-weight: 500; }
+
+    .finding-list { list-style: none; display: grid; gap: 0.75rem; }
+    .finding-item {
+      display: flex;
+      gap: 0.75rem;
+      align-items: flex-start;
+      padding: 0.85rem 1rem;
+      background: var(--bg-secondary);
+      border-radius: 10px;
+      border-left: 3px solid var(--accent-teal);
+      font-size: 0.85rem;
+      line-height: 1.6;
+      color: var(--text-secondary);
+    }
+    .finding-item.neg { border-left-color: var(--negative); }
+    .finding-item.neu { border-left-color: var(--neutral); }
+    .finding-item.pos { border-left-color: var(--positive); }
+    .finding-item.warn { border-left-color: var(--accent-amber); }
+    .finding-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent-teal);
+      min-width: 22px;
+      padding-top: 0.1rem;
+    }
+    .finding-item.neg .finding-num { color: var(--negative); }
+    .finding-item.neu .finding-num { color: var(--neutral); }
+    .finding-item.pos .finding-num { color: var(--positive); }
+    .finding-item.warn .finding-num { color: var(--accent-amber); }
+
+    .step-flow {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+    .step-item {
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      position: relative;
+    }
+    .step-item:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 15px;
+      top: 32px;
+      bottom: -12px;
+      width: 2px;
+      background: var(--border);
+    }
+    .step-dot {
+      width: 32px; height: 32px;
+      min-width: 32px;
+      border-radius: 50%;
+      background: rgba(78,205,196,0.15);
+      border: 2px solid var(--accent-teal);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--accent-teal);
+      font-family: 'JetBrains Mono', monospace;
+      position: relative;
+      z-index: 1;
+    }
+    .step-body {
+      padding-bottom: 1.25rem;
+      flex: 1;
+    }
+    .step-title {
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 0.25rem;
+    }
+    .step-desc {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+    .step-tag {
+      display: inline-block;
+      margin-top: 0.4rem;
+      font-size: 0.68rem;
+      padding: 0.15rem 0.6rem;
+      border-radius: 8px;
+      background: rgba(78,205,196,0.1);
+      color: var(--accent-teal);
+      border: 1px solid rgba(78,205,196,0.2);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .conclusion-box {
+      background: linear-gradient(135deg, rgba(78,205,196,0.06) 0%, rgba(168,85,247,0.06) 100%);
+      border: 1px solid rgba(78,205,196,0.2);
+      border-radius: 14px;
+      padding: 1.5rem;
+    }
+    .conclusion-quote {
+      font-size: 1rem;
+      font-style: italic;
+      line-height: 1.8;
+      color: var(--text-primary);
+      border-left: 3px solid var(--accent-teal);
+      padding-left: 1.25rem;
+      margin-bottom: 1rem;
+    }
+
     /* FOOTER */
     footer {
       text-align: center;
@@ -409,6 +559,7 @@
   <button class="nav-tab" onclick="showSection('matrix')" role="tab">🎯 Model Metrics</button>
   <button class="nav-tab" onclick="showSection('tweets')" role="tab">💬 Sample Tweets</button>
   <button class="nav-tab" onclick="showSection('trend')" role="tab">📈 Trend</button>
+  <button class="nav-tab" onclick="showSection('analysis')" role="tab">📝 Analysis</button>
 </nav>
 
 <main>
@@ -548,6 +699,167 @@
     <div class="chart-card" style="margin-top:1.5rem;">
       <div class="chart-wrapper"><canvas id="stackedChart"></canvas></div>
     </div>
+  </section>
+
+  <!-- SECTION 6: ANALYSIS -->
+  <section id="section-analysis" class="section">
+    <div class="section-header">
+      <div class="section-icon">📝</div>
+      <div>
+        <div class="section-title">Project Analysis & Interpretation</div>
+        <div class="section-desc">Methodology, key findings, discussion, and conclusions from the IPU144 sentiment analysis</div>
+      </div>
+    </div>
+
+    <!-- Background -->
+    <div class="analysis-grid">
+      <div class="analysis-card full">
+        <div class="analysis-card-title"><span>🌐</span> Background & Research Context</div>
+        <p class="analysis-p">
+          The <strong>144th Inter-Parliamentary Union (IPU) Assembly</strong> was held in <em>Nusa Bali, Indonesia</em> on March 14–18, 2023 — the first time Indonesia hosted this prestigious global parliamentary forum. The event brought together delegates from over 100 countries to discuss issues of climate change, gender equality, and geopolitical conflicts including the Russia-Ukraine war.
+        </p>
+        <p class="analysis-p">
+          This project investigates how Indonesian Twitter users perceived and responded to the IPU144 event using <strong>Natural Language Processing (NLP)</strong>. By analyzing public discourse on social media, we can understand the dominant narratives, emotional tone, and key concerns expressed by the public — offering insights into the relationship between parliamentary diplomacy and public opinion.
+        </p>
+        <p class="analysis-p">
+          Data was collected using <strong>snscrape</strong> with the hashtag <em>#IPU144</em>, yielding 96 Indonesian-language tweets. Sentiment classification was performed using <strong>TextBlob's</strong> polarity scoring, mapping compound scores to three categories: Positive (score &gt; 0.05), Negative (score &lt; -0.05), and Neutral (−0.05 ≤ score ≤ 0.05).
+        </p>
+      </div>
+    </div>
+
+    <!-- Methodology -->
+    <div class="analysis-grid" style="margin-bottom:1.5rem;">
+      <div class="analysis-card">
+        <div class="analysis-card-title"><span>⚙️</span> Methodology Pipeline</div>
+        <div class="step-flow">
+          <div class="step-item">
+            <div class="step-dot">01</div>
+            <div class="step-body">
+              <div class="step-title">Data Collection</div>
+              <div class="step-desc">Scraped tweets mentioning #IPU144 using snscrape — a Python-based social media scraping library that bypasses Twitter's rate limits.</div>
+              <span class="step-tag">snscrape · Python</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">02</div>
+            <div class="step-body">
+              <div class="step-title">Preprocessing & Cleaning</div>
+              <div class="step-desc">Removed URLs, hashtags, mentions, special characters, and stopwords. Applied regex-based normalization for informal Indonesian language.</div>
+              <span class="step-tag">pandas · regex · numpy</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">03</div>
+            <div class="step-body">
+              <div class="step-title">Translation</div>
+              <div class="step-desc">Translated Indonesian tweets to English to enable TextBlob's English-trained polarity lexicon to function accurately.</div>
+              <span class="step-tag">deep-translator · Google Translate API</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">04</div>
+            <div class="step-body">
+              <div class="step-title">Sentiment Classification</div>
+              <div class="step-desc">Applied TextBlob's PatternAnalyzer to compute polarity (−1 to +1) and subjectivity scores. Thresholding assigned each tweet to Positive, Neutral, or Negative.</div>
+              <span class="step-tag">TextBlob · PatternAnalyzer</span>
+            </div>
+          </div>
+          <div class="step-item">
+            <div class="step-dot">05</div>
+            <div class="step-body">
+              <div class="step-title">Visualization & Analysis</div>
+              <div class="step-desc">Generated word clouds, bar charts, pie charts, and trend visualizations to communicate findings clearly.</div>
+              <span class="step-tag">wordcloud · matplotlib</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="analysis-card">
+        <div class="analysis-card-title"><span>🔍</span> Key Findings</div>
+        <ul class="finding-list">
+          <li class="finding-item pos">
+            <span class="finding-num">F1</span>
+            <span><strong>Majority positive sentiment (57.3%).</strong> Most Twitter users expressed support and optimism about Indonesia's role as host — praising Puan Maharani's leadership, Indonesia's international standing, and the event's climate change agenda.</span>
+          </li>
+          <li class="finding-item neu">
+            <span class="finding-num">F2</span>
+            <span><strong>Neutral tweets reflect institutional reporting (22.9%).</strong> A significant portion of tweets were factual updates — delegation arrivals, bilateral meeting announcements, and ceremony coverage — with no strong emotional polarity.</span>
+          </li>
+          <li class="finding-item neg">
+            <span class="finding-num">F3</span>
+            <span><strong>Negative tweets centered on geopolitical tension (19.8%).</strong> The Russia-Ukraine conflict, calls for net-zero accountability, and criticism of parliamentary inaction on climate pledges were the primary negative topics.</span>
+          </li>
+          <li class="finding-item">
+            <span class="finding-num">F4</span>
+            <span><strong>IPU, parliament, and zeroemission dominate discourse.</strong> The word cloud reveals the event's dual narrative: parliamentary diplomacy (IPU, parliament, BKSAP) and environmental commitment (zeroemission, climate, stopclimatechange).</span>
+          </li>
+          <li class="finding-item">
+            <span class="finding-num">F5</span>
+            <span><strong>Peak activity on March 15–16.</strong> Tweet volume and sentiment intensity peaked mid-event during plenary sessions and the emergency debate on Russia-Ukraine — the most politically charged moment of the assembly.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Discussion -->
+    <div class="analysis-grid">
+      <div class="analysis-card">
+        <div class="analysis-card-title"><span>💬</span> Discussion</div>
+        <p class="analysis-p">
+          The dominant positive sentiment aligns with Indonesia's strong national pride in hosting a landmark international event. Tweets from government officials, BKSAP members, and engaged citizens reflected confidence in Indonesia's diplomatic standing. The recurring phrase <em>"gotong royong"</em> (mutual cooperation) highlighted the cultural framing of the event.
+        </p>
+        <p class="analysis-p">
+          Negative sentiments were largely driven by external geopolitical topics rather than dissatisfaction with the event itself. The <strong>Russia-Ukraine conflict</strong> dominated negative discourse — with several accounts criticizing parliament's inability to take stronger positions. This reflects the broader global frustration with parliamentary institutions during the conflict.
+        </p>
+        <p class="analysis-p">
+          The heavy use of campaign hashtags like <em>#zeroemission</em> and <em>#stopclimatechange</em> inflated compound scores for climate-related tweets, as TextBlob's English lexicon treats these terms ambiguously. This likely skewed neutral/negative scores on otherwise informational tweets.
+        </p>
+      </div>
+
+      <div class="analysis-card">
+        <div class="analysis-card-title"><span>⚠️</span> Limitations</div>
+        <ul class="finding-list">
+          <li class="finding-item warn">
+            <span class="finding-num">L1</span>
+            <span><strong>Translation-dependent pipeline.</strong> TextBlob is trained on English text. Indonesian tweets were machine-translated first, introducing translation errors that may affect sentiment accuracy.</span>
+          </li>
+          <li class="finding-item warn">
+            <span class="finding-num">L2</span>
+            <span><strong>Small dataset (96 tweets).</strong> The sample size is limited, which constrains statistical generalizability. A larger corpus via keyword expansion would improve robustness.</span>
+          </li>
+          <li class="finding-item warn">
+            <span class="finding-num">L3</span>
+            <span><strong>Lexicon-based classifier limitations.</strong> TextBlob uses a static lexicon and doesn't understand sarcasm, negation nuances, or domain-specific Indonesian political language.</span>
+          </li>
+          <li class="finding-item warn">
+            <span class="finding-num">L4</span>
+            <span><strong>Hashtag bias.</strong> Campaign hashtags like #zeroemission appear in almost all tweets regardless of sentiment, adding noise to the compound score calculations.</span>
+          </li>
+          <li class="finding-item warn">
+            <span class="finding-num">L5</span>
+            <span><strong>No timestamp data.</strong> The trend chart is reconstructed from the known event timeline (March 14–18) rather than actual per-tweet timestamps from the dataset.</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Conclusion -->
+    <div class="analysis-card full" style="margin-top:0;">
+      <div class="analysis-card-title"><span>✅</span> Conclusion</div>
+      <div class="conclusion-box">
+        <p class="conclusion-quote">
+          "The Indonesian public's Twitter discourse on #IPU144 was predominantly positive, reflecting national pride in Indonesia's role as host of the 144th IPU Assembly. The dominant themes of parliamentary diplomacy, climate action, and international cooperation demonstrate that citizens are engaged with Indonesia's foreign policy agenda — though negative sentiment around geopolitical conflicts signals ongoing public concern about parliament's effectiveness in resolving global crises."
+        </p>
+        <p class="analysis-p">
+          This project demonstrates the practical application of <strong>NLP-based sentiment analysis</strong> for monitoring public opinion on international parliamentary events. While TextBlob provides a quick and accessible baseline, future work could improve accuracy by employing <em>transformer-based Indonesian NLP models</em> (such as IndoBERT or XLM-R) or training a domain-specific classifier on Indonesian political Twitter data.
+        </p>
+        <p class="analysis-p" style="margin-bottom:0;">
+          The methodology established here — scraping, cleaning, translating, classifying, and visualizing — forms a reusable pipeline for ongoing parliamentary diplomacy research and social media monitoring of future IPU sessions.
+        </p>
+      </div>
+    </div>
+
   </section>
 
 </main>
