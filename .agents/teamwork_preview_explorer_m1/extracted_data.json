@@ -1,0 +1,131 @@
+{
+  "sentiment_distribution": {
+    "positive": {
+      "count": 213,
+      "percentage": 61.56
+    },
+    "negative": {
+      "count": 83,
+      "percentage": 23.99
+    },
+    "neutral": {
+      "count": 50,
+      "percentage": 14.45
+    },
+    "total": 346
+  },
+  "most_common_words": [
+    {"word": "ipu", "description": "Acronym for the Inter-Parliamentary Union, the core topic of the tweets."},
+    {"word": "zeroemission", "description": "Part of the main theme of the 144th IPU Assembly (Getting to Zero)."},
+    {"word": "stopclimatechange", "description": "Part of the main theme of the 144th IPU Assembly (Mobilizing Parliaments to Act on Climate Change)."},
+    {"word": "indonesia", "description": "The host country for the 144th IPU Assembly."},
+    {"word": "bal", "description": "Cleaned form of 'Bali', the location where the event was held (Nusa Dua, Bali)."},
+    {"word": "parlemen", "description": "Cleaned form of 'parliament', referring to the assembly of world parliaments."},
+    {"word": "sidang", "description": "Indonesian for 'session/assembly/meeting'."},
+    {"word": "puan", "description": "Refers to Puan Maharani, the Speaker of the Indonesian House of Representatives (DPR RI) who hosted the event."},
+    {"word": "dpr", "description": "Refers to Dewan Perwakilan Rakyat (People's Representative Council/House of Representatives)."},
+    {"word": "ri", "description": "Refers to Republik Indonesia (Republic of Indonesia)."},
+    {"word": "maret", "description": "March, the month in which the assembly took place (March 20-24, 2022)."},
+    {"word": "kerja", "description": "Cleaned word associated with 'kerjasama' (cooperation) between parliaments."},
+    {"word": "sama", "description": "Cleaned word associated with 'kerjasama' (cooperation)."},
+    {"word": "rusia", "description": "Refers to Russia, as the Russia-Ukraine conflict was a major topic of discussion."},
+    {"word": "ukraina", "description": "Refers to Ukraine, as the Russia-Ukraine conflict was a major topic of discussion."},
+    {"word": "global", "description": "Refers to global challenges and solutions discussed during the assembly."},
+    {"word": "damai", "description": "Indonesian for 'peace', representing parliamentary efforts for a peaceful solution in Ukraine."}
+  ],
+  "model_evaluation_metrics": {
+    "available": false,
+    "reason": "Lexicon-based VADER classification was used on English translations instead of a trained supervised machine learning model. No ground-truth human labels were present in the dataset, so metrics like accuracy, precision, recall, F1-score, and confusion matrices do not exist."
+  },
+  "sample_tweets": [
+    {
+      "index": 0,
+      "indonesian_cleaned": "international parliamentary union ipu selenggara nusa bal tanggal maret inidiplomasi indonesianway rintiskemajuan ipu ri",
+      "english_translation": "IPU International Parliamentary Union will be held in Nusa Bal this March",
+      "predicted_sentiment": "Netral",
+      "compound_score": 0.0
+    },
+    {
+      "index": 2,
+      "indonesian_cleaned": "syukur sekarang makin banyak masyarakat gemar beli produk lokal bagai daerah ini bentuk gotong royong jadi ciri khas masyarakat indonesia ipu umkm wastranusantara solusipuan",
+      "english_translation": "thankfully, now more and more people like to buy local products, like this area, the form of gotong royong is a hallmark of the Indonesian people IPU UMKM Wastranusantara Solusipuan",
+      "predicted_sentiment": "Positif",
+      "compound_score": 0.7951
+    },
+    {
+      "index": 3,
+      "indonesian_cleaned": "sejak awal sidang indonesia tekan penting peran sentral ipu cari solusi isu ukraina imbang depan hormat hukum internasional integritas daulat wilayah ipu zeroemission stopclimatechange",
+      "english_translation": "Since the beginning of the session, Indonesia has emphasized the importance of the central role of IPU in finding solutions to the issue of Ukraine, drawing a balance before respecting international law, territorial integrity and sovereignty, IPU, zero emission, stop climate change",
+      "predicted_sentiment": "Positif",
+      "compound_score": 0.7783
+    },
+    {
+      "index": 4,
+      "indonesian_cleaned": "bahagia sekali rasa ikut toreh sejarah bangun komitmen kerja sama global atas ubah iklim upaya cipta suatu dunia sehat tenteram sejahtera ipu zeroemission stopclimatechange solusipuan",
+      "english_translation": "I am very happy to participate in making history, building a commitment to global cooperation on changing the climate, efforts to create a world, healthy, peaceful and prosperous, IPU zero emission stop climatechange, your solution",
+      "predicted_sentiment": "Positif",
+      "compound_score": 0.9501
+    },
+    {
+      "index": 5,
+      "indonesian_cleaned": "pasca ipu bksap dpr bakal bentuk gugus tugas damai rusia ukraina bksapdprri dprri perangrusiaukraina rusia ukraina ipu lensaindonesiacom",
+      "english_translation": "Post-IPU BKSAP DPR will form peace task force Russia Ukraine BKSAPDPRRI DPRRI WarRussiaUkraine Russia Ukraine IPU LensIndonesiacom",
+      "predicted_sentiment": "Positif",
+      "compound_score": 0.5423
+    },
+    {
+      "index": 12,
+      "indonesian_cleaned": "indonesia satu agam dunia ipu",
+      "english_translation": "Indonesia is one religion in the world of Ipu",
+      "predicted_sentiment": "Netral",
+      "compound_score": 0.0
+    },
+    {
+      "index": 14,
+      "indonesian_cleaned": "tengah sidang ipu puan sampai duka atas jatuh pesawat china ipu puanmaharani ri",
+      "english_translation": "In the middle of the trial, Ipu Puan is saddened by the downing of the Chinese plane, Ipu Puanmaharani Ri",
+      "predicted_sentiment": "Negatif",
+      "compound_score": -0.5267
+    },
+    {
+      "index": 27,
+      "indonesian_cleaned": "live sidang inter parliamentary union nusa indonesia governing council assembly kamis maret ipu zeroemission stopclimatechange",
+      "english_translation": "live session inter parliamentary union nusa indonesia governing council assembly thursday march ipu zeroemission stop climatechange",
+      "predicted_sentiment": "Negatif",
+      "compound_score": -0.296
+    },
+    {
+      "index": 28,
+      "indonesian_cleaned": "sekretaris jenderal dpr ri indra iskandar sama delegasi association of secretaries general of parliaments asgp ikut acara cultural events kunjung salah satu spot wisata daerah uluwatu bal rabu maret ipu zeroemission stopclimatechange",
+      "english_translation": "Secretary General of DPR RI, Indra Iskandar and delegation of Association of Secretaries General of Parliaments ASGP participated in cultural events, visited one of the tourist spots in Uluwatu, Bal, Wednesday, March, IPU Zeroemission Stop Climate Change",
+      "predicted_sentiment": "Negatif",
+      "compound_score": -0.296
+    },
+    {
+      "index": 53,
+      "indonesian_cleaned": "wakil ketua badan kerja sama antar parlemen bksap dpr ri mardani ali sera ungkap beberapa negara serta sidang ipu minta konflik rusia ukraina benar benar fokus bahas ipu zeroemission stopclimatechange",
+      "english_translation": "Deputy chairman of the inter-parliamentary cooperation body, BKSAP, DPR RI, mardani ali, sera, said several countries and the IPU session asked for the Russia-Ukraine conflict to really focus on discussing IPU Zeroemission Stop Climate Change",
+      "predicted_sentiment": "Negatif",
+      "compound_score": -0.5423
+    },
+    {
+      "index": 64,
+      "indonesian_cleaned": "impressionnews ipu lewat",
+      "english_translation": "impressionnews ipu late",
+      "predicted_sentiment": "Netral",
+      "compound_score": 0.0
+    },
+    {
+      "index": 113,
+      "indonesian_cleaned": "ketua bksap dpr ri fadli zon sampai parlemen indonesia usul emergency item isi tawar jalan tengah dekat diplomasi libat peran parlemen atas konflik rusia ukraina ipu zeroemission stopclimatechange",
+      "english_translation": "Chairman of BKSAP DPR RI, Zon Fadli, to Indonesian Parliament, proposes emergency items, content of bargaining, middle ground, close diplomacy, involves parliament's role in conflict, Russia, Ukraine, IPU, zero emission, stop climate change",
+      "predicted_sentiment": "Negatif",
+      "compound_score": -0.7269
+    }
+  ],
+  "sentiment_trend_over_time": {
+    "available": false,
+    "reason": "There are no timestamp, date, or time columns in any of the extracted CSV files. The snscrape routine in the notebook only appended tweet content (i.e. tweets_list2.append([tweet.content])) without capturing date metadata.",
+    "contextual_trend": "The tweets were scraped for the #IPU144 query lang:id since:2021-01-01 until:2022-10-01. The 144th IPU Assembly event itself occurred from March 20 to March 24, 2022, in Nusa Dua, Bali, Indonesia. Word analysis shows a massive concentration of tweets in March 2022 (referencing 'Maret' and '20-24 maret') during the active conference period."
+  }
+}

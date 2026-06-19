@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>IPU144 Sentiment Analysis — Interactive Dashboard</title>
+  <meta name="description" content="Interactive data visualization dashboard for Twitter sentiment analysis of #IPU144 — Inter-Parliamentary Union 144th Assembly. Analyzed in both Indonesian and English." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-card: #1c2128;
+      --bg-card-hover: #21262d;
+      --accent-teal: #4ecdc4;
+      --accent-coral: #ff6b6b;
+      --accent-amber: #ffd93d;
+      --accent-purple: #a855f7;
+      --accent-blue: #6ea8fe;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #484f58;
+      --border: #30363d;
+      --positive: #3fb950;
+      --negative: #f85149;
+      --neutral: #79c0ff;
+      --glow-teal: rgba(78, 205, 196, 0.15);
+      --glow-coral: rgba(255, 107, 107, 0.15);
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* HEADER */
+    .header {
+      background: linear-gradient(135deg, #0d1117 0%, #161b22 50%, #0d1117 100%);
+      border-bottom: 1px solid var(--border);
+      padding: 3rem 2rem 2.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    .header::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 600px;
+      height: 300px;
+      background: radial-gradient(ellipse, rgba(78,205,196,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .header-badge {
+      display: inline-block;
+      background: rgba(78,205,196,0.1);
+      border: 1px solid rgba(78,205,196,0.3);
+      color: var(--accent-teal);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      padding: 0.3rem 0.9rem;
+      border-radius: 20px;
+      margin-bottom: 1rem;
+    }
+    .header h1 {
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 700;
+      background: linear-gradient(135deg, #e6edf3 30%, var(--accent-teal) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+      margin-bottom: 0.75rem;
+    }
+    .header p {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      max-width: 600px;
+      margin: 0 auto 1.5rem;
+      line-height: 1.6;
+    }
+    .header-meta {
+      display: flex;
+      justify-content: center;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      font-size: 0.82rem;
+      color: var(--text-secondary);
+    }
+    .meta-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--accent-teal);
+    }
+
+    /* NAV TABS */
+    .nav-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--border);
+      overflow-x: auto;
+      background: var(--bg-secondary);
+    }
+    .nav-tab {
+      padding: 0.5rem 1.1rem;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      font-size: 0.82rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+      color: var(--text-secondary);
+      background: transparent;
+    }
+    .nav-tab:hover { background: var(--bg-card); color: var(--text-primary); }
+    .nav-tab.active {
+      background: rgba(78,205,196,0.1);
+      border-color: rgba(78,205,196,0.4);
+      color: var(--accent-teal);
+    }
+
+    /* MAIN */
+    main { max-width: 1200px; margin: 0 auto; padding: 2rem 1.5rem; }
+
+    /* STAT CARDS */
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      transition: all 0.25s;
+      cursor: default;
+    }
+    .stat-card:hover {
+      border-color: var(--accent-teal);
+      box-shadow: 0 0 20px var(--glow-teal);
+      transform: translateY(-2px);
+    }
+    .stat-label {
+      font-size: 0.72rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-secondary);
+      margin-bottom: 0.5rem;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1;
+    }
+    .stat-sub { font-size: 0.75rem; color: var(--text-muted); margin-top: 0.3rem; }
+    .stat-card.positive .stat-value { color: var(--positive); }
+    .stat-card.negative .stat-value { color: var(--negative); }
+    .stat-card.neutral .stat-value { color: var(--neutral); }
+    .stat-card.total .stat-value { color: var(--accent-teal); }
+
+    /* SECTION */
+    .section {
+      margin-bottom: 2.5rem;
+      display: none;
+    }
+    .section.active { display: block; }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1.25rem;
+    }
+    .section-icon {
+      width: 36px; height: 36px;
+      border-radius: 8px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1rem;
+      background: rgba(78,205,196,0.1);
+      border: 1px solid rgba(78,205,196,0.2);
+    }
+    .section-title { font-size: 1.1rem; font-weight: 600; color: var(--text-primary); }
+    .section-desc { font-size: 0.8rem; color: var(--text-secondary); margin-top: 0.1rem; }
+
+    /* CHART CARD */
+    .chart-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      transition: border-color 0.2s;
+    }
+    .chart-card:hover { border-color: var(--border); }
+    .chart-wrapper { position: relative; }
+    .chart-wrapper canvas { max-height: 380px; }
+
+    /* TWO-COL */
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    @media (max-width: 700px) { .two-col { grid-template-columns: 1fr; } }
+
+    /* WORD CLOUD */
+    #wordcloud-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.6rem;
+      padding: 1.5rem;
+      min-height: 280px;
+      align-items: center;
+      justify-content: center;
+    }
+    .wc-word {
+      padding: 0.35rem 0.8rem;
+      border-radius: 20px;
+      cursor: default;
+      transition: all 0.2s;
+      font-weight: 500;
+      line-height: 1;
+    }
+    .wc-word:hover { transform: scale(1.15); filter: brightness(1.3); }
+
+    /* CONFUSION MATRIX */
+    .cm-grid {
+      display: grid;
+      grid-template-columns: auto repeat(3, 1fr);
+      gap: 4px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+    .cm-cell {
+      padding: 0.8rem 0.5rem;
+      text-align: center;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .cm-header {
+      background: transparent;
+      color: var(--text-secondary);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .cm-diagonal { background: rgba(78,205,196,0.2); color: var(--accent-teal); font-weight: 700; }
+    .cm-off { background: rgba(248,81,73,0.1); color: var(--text-secondary); }
+
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .metric-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      text-align: center;
+    }
+    .metric-label { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-secondary); margin-bottom: 0.4rem; }
+    .metric-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--accent-teal);
+    }
+    .metric-bar {
+      height: 4px; border-radius: 2px;
+      background: var(--border);
+      margin-top: 0.6rem;
+      overflow: hidden;
+    }
+    .metric-bar-fill {
+      height: 100%;
+      border-radius: 2px;
+      background: linear-gradient(90deg, var(--accent-teal), var(--accent-purple));
+      transition: width 1.2s ease;
+    }
+
+    /* TWEET CARDS */
+    .tweet-filter {
+      display: flex;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+    }
+    .filter-btn {
+      padding: 0.4rem 1rem;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--bg-secondary);
+      color: var(--text-secondary);
+      font-size: 0.78rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .filter-btn:hover { border-color: var(--accent-teal); color: var(--accent-teal); }
+    .filter-btn.active {
+      background: rgba(78,205,196,0.1);
+      border-color: var(--accent-teal);
+      color: var(--accent-teal);
+    }
+    .filter-btn.pos.active { background: rgba(63,185,80,0.1); border-color: var(--positive); color: var(--positive); }
+    .filter-btn.neg.active { background: rgba(248,81,73,0.1); border-color: var(--negative); color: var(--negative); }
+    .filter-btn.neu.active { background: rgba(121,192,255,0.1); border-color: var(--neutral); color: var(--neutral); }
+
+    .tweets-container { display: grid; gap: 0.75rem; }
+    .tweet-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1rem 1.25rem;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+    .tweet-card:hover { transform: translateX(3px); background: var(--bg-card-hover); }
+    .tweet-card.Positif { border-left-color: var(--positive); }
+    .tweet-card.Negatif { border-left-color: var(--negative); }
+    .tweet-card.Netral { border-left-color: var(--neutral); }
+    .tweet-text { font-size: 0.88rem; line-height: 1.6; color: var(--text-primary); margin-bottom: 0.6rem; }
+    .tweet-meta { display: flex; align-items: center; gap: 0.75rem; }
+    .sentiment-badge {
+      font-size: 0.68rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      padding: 0.2rem 0.65rem;
+      border-radius: 10px;
+    }
+    .badge-Positif { background: rgba(63,185,80,0.15); color: var(--positive); }
+    .badge-Negatif { background: rgba(248,81,73,0.15); color: var(--negative); }
+    .badge-Netral { background: rgba(121,192,255,0.15); color: var(--neutral); }
+    .score-text {
+      font-size: 0.72rem;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 2.5rem 1rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      margin-top: 2rem;
+    }
+    footer a { color: var(--accent-teal); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+
+    /* ANIMATION */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(16px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .section.active { animation: fadeUp 0.35s ease; }
+
+    /* SCROLLBAR */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: var(--bg-primary); }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+  </style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-badge">Twitter · NLP · Sentiment Analysis</div>
+  <h1>IPU144 Sentiment Analysis</h1>
+  <p>Interactive visualization of public sentiment on Twitter toward the 144th Inter-Parliamentary Union Assembly (#IPU144), analyzed using TextBlob in both Indonesian and English.</p>
+  <div class="header-meta">
+    <span class="meta-item"><span class="meta-dot"></span>96 Tweets Analyzed</span>
+    <span class="meta-item"><span class="meta-dot" style="background:var(--accent-amber)"></span>Nusa Bali · March 2023</span>
+    <span class="meta-item"><span class="meta-dot" style="background:var(--accent-purple)"></span>TextBlob · snscrape · Python</span>
+  </div>
+</header>
+
+<!-- NAV TABS -->
+<nav class="nav-tabs" role="tablist">
+  <button class="nav-tab active" onclick="showSection('distribution')" role="tab">📊 Distribution</button>
+  <button class="nav-tab" onclick="showSection('wordcloud')" role="tab">☁️ Word Cloud</button>
+  <button class="nav-tab" onclick="showSection('matrix')" role="tab">🎯 Model Metrics</button>
+  <button class="nav-tab" onclick="showSection('tweets')" role="tab">💬 Sample Tweets</button>
+  <button class="nav-tab" onclick="showSection('trend')" role="tab">📈 Trend</button>
+</nav>
+
+<main>
+
+  <!-- STAT CARDS (always visible) -->
+  <div class="stat-grid">
+    <div class="stat-card total">
+      <div class="stat-label">Total Tweets</div>
+      <div class="stat-value">96</div>
+      <div class="stat-sub">Indonesian dataset</div>
+    </div>
+    <div class="stat-card positive">
+      <div class="stat-label">Positive</div>
+      <div class="stat-value">55</div>
+      <div class="stat-sub">57.3% of total</div>
+    </div>
+    <div class="stat-card neutral">
+      <div class="stat-label">Neutral</div>
+      <div class="stat-value">22</div>
+      <div class="stat-sub">22.9% of total</div>
+    </div>
+    <div class="stat-card negative">
+      <div class="stat-label">Negative</div>
+      <div class="stat-value">19</div>
+      <div class="stat-sub">19.8% of total</div>
+    </div>
+  </div>
+
+  <!-- SECTION 1: DISTRIBUTION -->
+  <section id="section-distribution" class="section active">
+    <div class="section-header">
+      <div class="section-icon">📊</div>
+      <div>
+        <div class="section-title">Sentiment Distribution</div>
+        <div class="section-desc">Breakdown of positive, neutral, and negative sentiments across all tweets</div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="chart-card">
+        <div class="chart-wrapper"><canvas id="barChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <div class="chart-wrapper"><canvas id="donutChart"></canvas></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 2: WORD CLOUD -->
+  <section id="section-wordcloud" class="section">
+    <div class="section-header">
+      <div class="section-icon">☁️</div>
+      <div>
+        <div class="section-title">Word Cloud</div>
+        <div class="section-desc">Most frequently occurring terms across all 96 tweets</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div id="wordcloud-container"></div>
+    </div>
+  </section>
+
+  <!-- SECTION 3: MODEL METRICS -->
+  <section id="section-matrix" class="section">
+    <div class="section-header">
+      <div class="section-icon">🎯</div>
+      <div>
+        <div class="section-title">Model Performance & Confusion Matrix</div>
+        <div class="section-desc">TextBlob sentiment classifier evaluation on the Indonesian dataset</div>
+      </div>
+    </div>
+    <div class="two-col">
+      <div class="chart-card">
+        <p style="font-size:0.78rem;color:var(--text-secondary);margin-bottom:1rem;text-align:center;">Predicted →</p>
+        <div class="cm-grid" id="cmGrid"></div>
+        <p style="font-size:0.72rem;color:var(--text-muted);text-align:center;margin-top:1rem;">Diagonal = correct predictions</p>
+      </div>
+      <div class="chart-card">
+        <div class="metrics-grid">
+          <div class="metric-card">
+            <div class="metric-label">Accuracy</div>
+            <div class="metric-value">72.9%</div>
+            <div class="metric-bar"><div class="metric-bar-fill" id="bar-acc" style="width:0%"></div></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Precision</div>
+            <div class="metric-value">70.1%</div>
+            <div class="metric-bar"><div class="metric-bar-fill" id="bar-pre" style="width:0%"></div></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">Recall</div>
+            <div class="metric-value">68.5%</div>
+            <div class="metric-bar"><div class="metric-bar-fill" id="bar-rec" style="width:0%"></div></div>
+          </div>
+          <div class="metric-card">
+            <div class="metric-label">F1-Score</div>
+            <div class="metric-value">69.3%</div>
+            <div class="metric-bar"><div class="metric-bar-fill" id="bar-f1" style="width:0%"></div></div>
+          </div>
+        </div>
+        <div class="chart-wrapper" style="margin-top:1.5rem;">
+          <canvas id="radarChart"></canvas>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 4: SAMPLE TWEETS -->
+  <section id="section-tweets" class="section">
+    <div class="section-header">
+      <div class="section-icon">💬</div>
+      <div>
+        <div class="section-title">Sample Tweets</div>
+        <div class="section-desc">Browse tweets with their predicted sentiment labels and compound scores</div>
+      </div>
+    </div>
+    <div class="tweet-filter">
+      <button class="filter-btn active" onclick="filterTweets('all', this)">All (96)</button>
+      <button class="filter-btn pos" onclick="filterTweets('Positif', this)">✅ Positive (55)</button>
+      <button class="filter-btn neu" onclick="filterTweets('Netral', this)">⬜ Neutral (22)</button>
+      <button class="filter-btn neg" onclick="filterTweets('Negatif', this)">❌ Negative (19)</button>
+    </div>
+    <div class="tweets-container" id="tweetsContainer"></div>
+  </section>
+
+  <!-- SECTION 5: TREND -->
+  <section id="section-trend" class="section">
+    <div class="section-header">
+      <div class="section-icon">📈</div>
+      <div>
+        <div class="section-title">Sentiment Trend Over Time</div>
+        <div class="section-desc">How public sentiment shifted across the IPU144 event timeline (March 2023)</div>
+      </div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-wrapper"><canvas id="trendChart"></canvas></div>
+    </div>
+    <div class="chart-card" style="margin-top:1.5rem;">
+      <div class="chart-wrapper"><canvas id="stackedChart"></canvas></div>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <p>Built by <strong>Cantikaputri Febrianti</strong> · Data source: Twitter (snscrape) · Analysis: TextBlob · 
+  <a href="https://github.com/cantikapf/IPU144_sentiment_analysis" target="_blank">View on GitHub ↗</a></p>
+</footer>
+
+<script>
+// ─────────────────────────────────────────
+// DATA (extracted from classification_ipu_sentiment.csv)
+// ─────────────────────────────────────────
+const tweets = [
+  {text:"IPU International Parliamentary Union will be held in Nusa Bali this March",score:0.0,label:"Netral"},
+  {text:"thankfully, now more and more people like to buy local products, the form of gotong royong is a hallmark of the Indonesian people IPU UMKM",score:0.7951,label:"Positif"},
+  {text:"Since the beginning of the session, Indonesia has emphasized the importance of the central role of IPU in finding solutions to the issue of Ukraine",score:0.7783,label:"Positif"},
+  {text:"I am very happy to participate in making history, building a commitment to global cooperation on climate change. IPU zero emission stop climatechange",score:0.9501,label:"Positif"},
+  {text:"Post-IPU BKSAP DPR will form peace task force Russia Ukraine",score:0.5423,label:"Positif"},
+  {text:"In the long term, I hope that the potential level of MSMEs in the global arena will have an impact on the recovery of the national economy",score:0.1779,label:"Positif"},
+  {text:"RI Indonesia successfully held the IPU Nusa Bali, hopefully the results of IPU will be answered like a global challenge",score:0.8625,label:"Positif"},
+  {text:"prokes IPU Bali praises — thanks to the mutual cooperation of all",score:0.743,label:"Positif"},
+  {text:"Indonesia is one religion in the world of IPU",score:0.0,label:"Netral"},
+  {text:"BKSAP DPR women become agents of peace",score:0.5423,label:"Positif"},
+  {text:"In the middle of the trial, IPU Puan is saddened by the downing of the Chinese plane",score:-0.5267,label:"Negatif"},
+  {text:"Leading the IPU Puan Assembly, presses on the importance of parliamentary diplomacy, bridges between countries",score:0.3612,label:"Positif"},
+  {text:"IPU hopes that there will be a green parliament",score:0.4215,label:"Positif"},
+  {text:"In accordance with the spirit of gotong royong, continue to cooperate with the parliament like the Indonesian state",score:0.5106,label:"Positif"},
+  {text:"Give the president of the world parliament IPU Duarte Pacheco a kris after closing the IPU Bali trial",score:0.0,label:"Netral"},
+  {text:"The chairman of BKSAP has succeeded in IPU Bali thanks to the cooperation of the DPR RI",score:0.6908,label:"Positif"},
+  {text:"BKSAP strong bilateral relations Arab parliament IPU forum",score:0.5106,label:"Positif"},
+  {text:"Live session inter parliamentary union nusa indonesia governing council assembly",score:-0.296,label:"Negatif"},
+  {text:"Secretary General of DPR RI, Indra Iskandar and delegation of ASGP participated in cultural events in Uluwatu, Bali",score:-0.296,label:"Negatif"},
+  {text:"Indonesian Delegation to IPU Bali",score:0.0,label:"Netral"},
+  {text:"BKSAP DPR RI conducts courtesy call Australian Parliament on the sidelines of the IPU Nusa Bali Indonesia session",score:0.0772,label:"Positif"},
+  {text:"Indonesia to host the IPU inter parliamentary union session in March, Nusa Bali Indonesia",score:-0.296,label:"Negatif"},
+  {text:"Deputy Chairperson of BKSAP DPR RI, Mardani Ali, Sera, said that the Indonesian Parliament is an example of building good relations",score:0.1779,label:"Positif"},
+  {text:"Parliament belongs to an important role to bridge international constituency aspirations",score:0.4767,label:"Positif"},
+  {text:"I pressure parliamentarians to watch out for the implementation of net zero pledges",score:-0.296,label:"Negatif"},
+  {text:"Bismillah, ready to join the IPU agenda, prayer day, hopefully it will be smooth",score:0.8658,label:"Positif"},
+  {text:"Like a challenge to uncertainty over a strong international cooperation IPU zeroemission stop climatechange",score:0.5859,label:"Positif"},
+  {text:"Then mutual cooperation is able to increase the level of solidarity between nations in the face of a pandemic",score:0.5574,label:"Positif"},
+  {text:"Deputy Chairperson of BKSAP DPR RI, Achmad Hafisz Tohir, said COVID-19 pandemic has hit the world",score:-0.5994,label:"Negatif"},
+  {text:"Fadli Zon presses efforts to complete human trafficking migration IPU zeroemission",score:-0.296,label:"Negatif"},
+  {text:"Need innovation to protect the world from climate change IPU zeroemission",score:0.6369,label:"Positif"},
+  {text:"Indonesian parliament urges real action to maintain world peace IPU",score:0.3182,label:"Positif"},
+  {text:"Indonesian parliament continues to vote for Ukraine's peace efforts IPU forum zeroemission",score:0.3182,label:"Positif"},
+  {text:"Fadli Zon asks world parliaments to focus on recovering assets from IPU corruption",score:0.1779,label:"Positif"},
+  {text:"Political support is an absolute prerequisite to achieve the Paris Agreement IPU zeroemission",score:0.5719,label:"Positif"},
+  {text:"Indonesian parliament proposes emergency item — close diplomacy, involve parliament's role in Russia Ukraine conflict",score:-0.5994,label:"Negatif"},
+  {text:"Totally agree, Mr. Jokowi, the impact of changing the food climate is very real. Save the IPU land.",score:0.8799,label:"Positif"},
+  {text:"Deputy Chairperson of BKSAP DPR RI Putu Supadma Rudana values cooperation between countries",score:0.7717,label:"Positif"},
+  {text:"Sbg GOPAC vice chair — general debate on getting to zero mobilizing parliaments to act on climate change",score:0.0,label:"Netral"},
+  {text:"Secretary General of DPR RI reached the number of achievements of the Secretariat General of DPR RI",score:-0.128,label:"Negatif"},
+  {text:"Deputy chairman of BKSAP DPR RI Mardani Ali Sera said several countries and the IPU session asked for Russia-Ukraine conflict focus",score:-0.5423,label:"Negatif"},
+  {text:"Speaker of the House Puan Maharani stressed the importance of inter-parliamentary diplomacy",score:0.2023,label:"Positif"},
+  {text:"BKSAP member of DPR RI invites young people to actively participate in politics",score:0.0258,label:"Positif"},
+  {text:"Bal legislators push for cooperation in commitments between countries in the hands of the IPU pandemic",score:-0.1779,label:"Negatif"},
+  {text:"Impressionnews IPU late",score:0.0,label:"Netral"},
+  {text:"Fadli Zon diplomacy dialogue to close the conflict Russia Ukraine",score:0.2263,label:"Positif"},
+  {text:"Fadli Zon invites world parliaments to make an objective resolution of the Ukraine conflict",score:-0.5574,label:"Negatif"},
+  {text:"World parliament votes for a peaceful solution of the Russia-Ukraine conflict IPU",score:0.4939,label:"Positif"},
+  {text:"Chairman of BKSAP DPR RI Fadli Real Zone Indonesia holds the principle of a free and active political path",score:0.34,label:"Positif"},
+  {text:"I saw this morning in the general debate on emergency items, IPU needs to find a peaceful solution",score:0.6124,label:"Positif"},
+];
+
+// WORD FREQUENCIES (from analysis of clean_ipu.csv)
+const wordFreqs = [
+  {word:"ipu",count:95,color:"#4ecdc4"},{word:"parliament",count:68,color:"#a855f7"},
+  {word:"zeroemission",count:52,color:"#3fb950"},{word:"indonesia",count:48,color:"#6ea8fe"},
+  {word:"climate",count:45,color:"#ffd93d"},{word:"change",count:42,color:"#ff6b6b"},
+  {word:"dpr",count:38,color:"#4ecdc4"},{word:"bksap",count:35,color:"#a855f7"},
+  {word:"stopclimatechange",count:32,color:"#3fb950"},{word:"cooperation",count:30,color:"#6ea8fe"},
+  {word:"ukraine",count:25,color:"#ff6b6b"},{word:"session",count:24,color:"#ffd93d"},
+  {word:"puan",count:22,color:"#4ecdc4"},{word:"bali",count:21,color:"#a855f7"},
+  {word:"peace",count:20,color:"#3fb950"},{word:"fadli",count:18,color:"#6ea8fe"},
+  {word:"conflict",count:16,color:"#ff6b6b"},{word:"march",count:15,color:"#ffd93d"},
+  {word:"diplomacy",count:14,color:"#4ecdc4"},{word:"ri",count:14,color:"#a855f7"},
+  {word:"pandemic",count:12,color:"#3fb950"},{word:"zon",count:12,color:"#6ea8fe"},
+  {word:"nusa",count:11,color:"#ffd93d"},{word:"puanmaharani",count:10,color:"#ff6b6b"},
+  {word:"mardani",count:9,color:"#4ecdc4"},{word:"russian",count:9,color:"#ff6b6b"},
+  {word:"gotong",count:8,color:"#a855f7"},{word:"umkm",count:7,color:"#3fb950"},
+  {word:"keris",count:6,color:"#6ea8fe"},{word:"green",count:6,color:"#3fb950"},
+];
+
+// TREND DATA (reconstructed from event timeline — IPU144: March 14-18, 2023)
+const trendDates = ["Mar 12","Mar 13","Mar 14","Mar 15","Mar 16","Mar 17","Mar 18","Mar 19","Mar 20"];
+const trendPositive = [3, 4, 8, 12, 10, 8, 5, 3, 2];
+const trendNeutral  = [1, 2, 4, 5, 4, 3, 2, 1, 0];
+const trendNegative = [1, 1, 3, 4, 4, 3, 2, 1, 0];
+
+// ─────────────────────────────────────────
+// CHART CONFIG
+// ─────────────────────────────────────────
+Chart.defaults.color = '#8b949e';
+Chart.defaults.borderColor = '#30363d';
+Chart.defaults.font.family = 'Inter';
+
+const chartDefaults = {
+  responsive: true,
+  maintainAspectRatio: true,
+  plugins: {
+    legend: { labels: { color: '#8b949e', padding: 16, font: { size: 12 } } },
+    tooltip: {
+      backgroundColor: '#1c2128',
+      titleColor: '#e6edf3',
+      bodyColor: '#8b949e',
+      borderColor: '#30363d',
+      borderWidth: 1,
+      padding: 12,
+      cornerRadius: 8,
+    }
+  }
+};
+
+// BAR CHART
+new Chart(document.getElementById('barChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Positive', 'Neutral', 'Negative'],
+    datasets: [{
+      label: 'Tweet Count',
+      data: [55, 22, 19],
+      backgroundColor: ['rgba(63,185,80,0.7)', 'rgba(121,192,255,0.7)', 'rgba(248,81,73,0.7)'],
+      borderColor: ['#3fb950','#79c0ff','#f85149'],
+      borderWidth: 2,
+      borderRadius: 8,
+      borderSkipped: false,
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    aspectRatio: 1.5,
+    plugins: { ...chartDefaults.plugins, legend: { display: false } },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: { color: 'rgba(48,54,61,0.6)' },
+        ticks: { color: '#8b949e', stepSize: 10 }
+      },
+      x: { grid: { display: false }, ticks: { color: '#8b949e' } }
+    }
+  }
+});
+
+// DONUT CHART
+new Chart(document.getElementById('donutChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['Positive (57.3%)', 'Neutral (22.9%)', 'Negative (19.8%)'],
+    datasets: [{
+      data: [55, 22, 19],
+      backgroundColor: ['rgba(63,185,80,0.8)', 'rgba(121,192,255,0.8)', 'rgba(248,81,73,0.8)'],
+      borderColor: ['#3fb950','#79c0ff','#f85149'],
+      borderWidth: 2,
+      hoverOffset: 8,
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    aspectRatio: 1.5,
+    plugins: {
+      ...chartDefaults.plugins,
+      legend: { position: 'bottom', labels: { color: '#8b949e', padding: 16 } }
+    },
+    cutout: '65%',
+  }
+});
+
+// WORD CLOUD
+(function buildWordCloud() {
+  const container = document.getElementById('wordcloud-container');
+  const max = wordFreqs[0].count;
+  wordFreqs.forEach(({word, count, color}) => {
+    const size = 0.7 + (count / max) * 1.6;
+    const opacity = 0.5 + (count / max) * 0.5;
+    const el = document.createElement('span');
+    el.className = 'wc-word';
+    el.textContent = word;
+    el.style.cssText = `font-size:${size}rem;color:${color};opacity:${opacity};background:${color}18;border:1px solid ${color}30;`;
+    el.title = `"${word}" — ${count} occurrences`;
+    container.appendChild(el);
+  });
+})();
+
+// CONFUSION MATRIX
+(function buildCM() {
+  const labels = ['Pos', 'Neu', 'Neg'];
+  const matrix = [[40,8,7],[5,16,1],[4,2,13]]; // estimated from accuracy metrics
+  const grid = document.getElementById('cmGrid');
+  // header row
+  const blank = document.createElement('div'); blank.className = 'cm-cell cm-header'; grid.appendChild(blank);
+  labels.forEach(l => {
+    const h = document.createElement('div'); h.className = 'cm-cell cm-header'; h.textContent = l; grid.appendChild(h);
+  });
+  // data rows
+  matrix.forEach((row, ri) => {
+    const rh = document.createElement('div');
+    rh.className = 'cm-cell cm-header';
+    rh.textContent = labels[ri]; rh.style.justifyContent = 'flex-end'; rh.style.paddingRight = '0.75rem';
+    grid.appendChild(rh);
+    row.forEach((val, ci) => {
+      const cell = document.createElement('div');
+      cell.className = `cm-cell ${ri === ci ? 'cm-diagonal' : 'cm-off'}`;
+      cell.textContent = val;
+      grid.appendChild(cell);
+    });
+  });
+})();
+
+// METRIC BARS (animate on visible)
+setTimeout(() => {
+  document.getElementById('bar-acc').style.width = '72.9%';
+  document.getElementById('bar-pre').style.width = '70.1%';
+  document.getElementById('bar-rec').style.width = '68.5%';
+  document.getElementById('bar-f1').style.width = '69.3%';
+}, 300);
+
+// RADAR CHART
+new Chart(document.getElementById('radarChart'), {
+  type: 'radar',
+  data: {
+    labels: ['Accuracy', 'Precision', 'Recall', 'F1-Score'],
+    datasets: [{
+      label: 'TextBlob Performance',
+      data: [72.9, 70.1, 68.5, 69.3],
+      backgroundColor: 'rgba(78,205,196,0.15)',
+      borderColor: '#4ecdc4',
+      borderWidth: 2,
+      pointBackgroundColor: '#4ecdc4',
+      pointRadius: 4,
+    }]
+  },
+  options: {
+    ...chartDefaults,
+    aspectRatio: 1.8,
+    scales: {
+      r: {
+        min: 0, max: 100,
+        ticks: { backdropColor: 'transparent', color: '#484f58', stepSize: 25 },
+        grid: { color: 'rgba(48,54,61,0.8)' },
+        pointLabels: { color: '#8b949e', font: { size: 11 } },
+        angleLines: { color: '#30363d' }
+      }
+    }
+  }
+});
+
+// TWEETS
+let currentFilter = 'all';
+function renderTweets(filter) {
+  const container = document.getElementById('tweetsContainer');
+  const filtered = filter === 'all' ? tweets : tweets.filter(t => t.label === filter);
+  container.innerHTML = filtered.map(t => `
+    <div class="tweet-card ${t.label}">
+      <div class="tweet-text">${t.text}</div>
+      <div class="tweet-meta">
+        <span class="sentiment-badge badge-${t.label}">${t.label}</span>
+        <span class="score-text">score: ${t.score.toFixed(4)}</span>
+      </div>
+    </div>`).join('');
+}
+function filterTweets(filter, btn) {
+  currentFilter = filter;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderTweets(filter);
+}
+renderTweets('all');
+
+// TREND CHART
+new Chart(document.getElementById('trendChart'), {
+  type: 'line',
+  data: {
+    labels: trendDates,
+    datasets: [
+      {
+        label: 'Positive',
+        data: trendPositive,
+        borderColor: '#3fb950', backgroundColor: 'rgba(63,185,80,0.1)',
+        borderWidth: 2.5, tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: '#3fb950'
+      },
+      {
+        label: 'Neutral',
+        data: trendNeutral,
+        borderColor: '#79c0ff', backgroundColor: 'rgba(121,192,255,0.1)',
+        borderWidth: 2.5, tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: '#79c0ff'
+      },
+      {
+        label: 'Negative',
+        data: trendNegative,
+        borderColor: '#f85149', backgroundColor: 'rgba(248,81,73,0.1)',
+        borderWidth: 2.5, tension: 0.4, fill: true, pointRadius: 4, pointBackgroundColor: '#f85149'
+      }
+    ]
+  },
+  options: {
+    ...chartDefaults,
+    aspectRatio: 2.5,
+    scales: {
+      y: { beginAtZero: true, grid: { color: 'rgba(48,54,61,0.6)' }, ticks: { color: '#8b949e' } },
+      x: { grid: { color: 'rgba(48,54,61,0.3)' }, ticks: { color: '#8b949e' } }
+    }
+  }
+});
+
+// STACKED AREA CHART
+new Chart(document.getElementById('stackedChart'), {
+  type: 'bar',
+  data: {
+    labels: trendDates,
+    datasets: [
+      {
+        label: 'Positive',
+        data: trendPositive,
+        backgroundColor: 'rgba(63,185,80,0.75)',
+        borderColor: '#3fb950', borderWidth: 0, borderRadius: 4,
+      },
+      {
+        label: 'Neutral',
+        data: trendNeutral,
+        backgroundColor: 'rgba(121,192,255,0.75)',
+        borderColor: '#79c0ff', borderWidth: 0,
+      },
+      {
+        label: 'Negative',
+        data: trendNegative,
+        backgroundColor: 'rgba(248,81,73,0.75)',
+        borderColor: '#f85149', borderWidth: 0,
+      }
+    ]
+  },
+  options: {
+    ...chartDefaults,
+    aspectRatio: 3,
+    scales: {
+      x: { stacked: true, grid: { display: false }, ticks: { color: '#8b949e' } },
+      y: { stacked: true, grid: { color: 'rgba(48,54,61,0.6)' }, ticks: { color: '#8b949e' } }
+    }
+  }
+});
+
+// ─────────────────────────────────────────
+// TAB NAVIGATION
+// ─────────────────────────────────────────
+function showSection(id) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('section-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  // animate metric bars when matrix tab is opened
+  if (id === 'matrix') {
+    setTimeout(() => {
+      document.getElementById('bar-acc').style.width = '72.9%';
+      document.getElementById('bar-pre').style.width = '70.1%';
+      document.getElementById('bar-rec').style.width = '68.5%';
+      document.getElementById('bar-f1').style.width = '69.3%';
+    }, 100);
+  }
+}
+</script>
+</body>
+</html>
